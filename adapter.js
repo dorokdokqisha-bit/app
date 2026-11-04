@@ -18,13 +18,26 @@
     g.innerHTML = '<div><img src="icon-512.png" alt="Dorokdok Qisha">' + html + '</div>';
     return g;
   }
-  function login() {
-    var g = gate('<b>Masuk untuk membuka data usaha</b><button id="dq-in">Masuk dengan Google</button><small>Hanya email terdaftar yang dapat masuk.</small>');
+  var PESAN = {
+    'auth/popup-blocked': 'Pop-up diblokir Chrome. Ketuk ikon kotak bergaris di kolom alamat, pilih "Selalu izinkan pop-up", lalu coba lagi.',
+    'auth/popup-closed-by-user': 'Jendela login tertutup sebelum selesai. Coba lagi dan tunggu sampai kembali otomatis.',
+    'auth/cancelled-popup-request': 'Login sebelumnya belum selesai. Coba lagi.',
+    'auth/unauthorized-domain': 'Domain website belum didaftarkan di Firebase › Authentication › Settings › Authorized domains.',
+    'auth/operation-not-allowed': 'Login Google belum diaktifkan di Firebase › Authentication › Sign-in method.',
+    'auth/network-request-failed': 'Koneksi internet terputus. Periksa sinyal lalu coba lagi.'
+  };
+  function login(err) {
+    var msg = err ? '<small style="background:rgba(0,0,0,.25);padding:8px 10px;border-radius:6px">' + (PESAN[err.code] || ('Gagal masuk: ' + (err.code || err.message))) + '</small>' : '';
+    var g = gate('<b>Masuk untuk membuka data usaha</b>' + msg + '<button id="dq-in">Masuk dengan Google</button><small>Hanya email terdaftar yang dapat masuk.</small>');
     g.querySelector('#dq-in').onclick = function () {
+      var b = this; b.disabled = true; b.textContent = 'Membuka Google…';
       var p = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(p).catch(function () { auth.signInWithRedirect(p); });
+      p.setCustomParameters({ prompt: 'select_account' });
+      auth.signInWithPopup(p).catch(function (e) { login(e); });
     };
   }
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function () {});
+  auth.getRedirectResult().catch(function (e) { login(e); });
   function tolak(u) {
     var g = gate('<b>Akses ditolak</b><small>' + u.email + ' belum terdaftar. Minta pengelola menambahkan email ini.</small><button id="dq-out">Ganti akun</button>');
     g.querySelector('#dq-out').onclick = function () { auth.signOut(); };
