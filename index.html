@@ -4,7 +4,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="config.js"></script><script src="adapter.js"></script>
+<script src="config.js"></script><script src="adapter.js"></script><script src="penasihat.js"></script>
 </head><body>
 <title>Dorokdok Qisha</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -340,7 +340,7 @@ function balances(J){const b={};for(const l of J)b[l.akun]=(b[l.akun]||0)+l.d-l.
   return{g,labaBerjalan,aset,kew,ek,selisih:Math.round(aset-kew-ek)}}
 
 /* ===== Navigasi ===== */
-const TABS=[['ringkasan','Ringkasan'],['produksi','Produksi'],['stok','Stok'],['penjualan','Penjualan'],['kas','Buku Kas'],['payroll','Payroll'],['laporan','Laporan'],['investor','Investor'],['organisasi','Organisasi'],['pengaturan','Pengaturan']];
+const TABS=[['ringkasan','Ringkasan'],['produksi','Produksi'],['stok','Stok'],['penjualan','Penjualan'],['kas','Buku Kas'],['payroll','Payroll'],['laporan','Laporan'],['investor','Investor'],['penasihat','Penasihat'],['organisasi','Organisasi'],['pengaturan','Pengaturan']];
 function route(){const h=location.hash.slice(1);ui.tab=TABS.some(t=>t[0]===h)?h:'ringkasan';render();window.scrollTo(0,0)}
 addEventListener('hashchange',route);
 
@@ -568,7 +568,7 @@ function fotoKecil(file){return new Promise((res,rej)=>{const r=new FileReader()
 function render(){
   document.body.classList.toggle('ro',!canWrite);
   $('tabs').innerHTML=TABS.map(([k,l])=>`<a href="#${k}" ${ui.tab===k?'aria-current="page"':''}>${l}</a>`).join('');
-  const P={ringkasan:pRingkasan,produksi:pProduksi,stok:pStok,penjualan:pPenjualan,kas:pKas,payroll:pPayroll,laporan:pLaporan,investor:pInvestor,organisasi:pOrg,pengaturan:pPengaturan}[ui.tab];
+  const P={ringkasan:pRingkasan,produksi:pProduksi,stok:pStok,penjualan:pPenjualan,kas:pKas,payroll:pPayroll,laporan:pLaporan,investor:pInvestor,penasihat:(typeof pPenasihat==='function'?pPenasihat:()=>'<div class="empty">File penasihat.js belum termuat. Pastikan sudah diunggah ke folder yang sama dengan index.html.</div>'),organisasi:pOrg,pengaturan:pPengaturan}[ui.tab];
   let pre='';if(!canWrite)pre=`<div class="banner">Mode investor: Anda melihat seluruh data secara langsung. Perubahan hanya oleh pengelola.</div>`;
   if(!ST.meta?.saldoAwal&&!vals(ST.batch).length)pre+=`<div class="banner">Data usaha belum dimuat. Jika baru dibuka, tunggu sebentar atau periksa koneksi.</div>`;
   $('app').innerHTML=pre+P()}
